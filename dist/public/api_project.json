@@ -1,0 +1,17 @@
+{
+    "name": "Claim Service en Node",
+    "version": "0.1.0",
+    "description": "Microservicio de Reclamo",
+    "title": "Microservicio de Reclamo",
+    "url": "",
+    "sampleUrl": false,
+    "defaultVersion": "0.0.0",
+    "apidoc": "0.3.0",
+    "generator": {
+      "name": "apidoc",
+      "time": "2024-11-10T19:54:57.135Z",
+      "url": "http://apidocjs.com",
+      "version": "0.22.1"
+    }
+  }
+  
