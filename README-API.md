@@ -190,3 +190,24 @@ Permite a los usuarios crear un nuevo tipo de reclamo.
   "description": "string"
 }
 ```
+
+# Eliminar Tipo de Reclamo
+
+### DELETE `/claim-types/{id}`
+
+Elimina un tipo de reclamo por ID.
+
+### Headers
+
+| Cabecera           | Contenido              |
+|--------------------|------------------------|
+| Authorization: Bearer xxx | Token en formato JWT |
+
+### Parámetros
+
+- **id** (string): ID del tipo de reclamo a eliminar.
+
+### Respuesta
+
+#### 200 OK
+Tipo de reclamo eliminado correctamente.
