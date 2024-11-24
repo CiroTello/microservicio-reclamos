@@ -1,0 +1,6 @@
+export enum ClaimStateEnum {
+  CREATED = 'CREATED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINALIZED = 'FINALIZED',
+  CANCELED = 'CANCELED'
+}
