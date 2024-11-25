@@ -20,7 +20,7 @@ class ClaimsRoute {
     this.router.put('/claims/:claimId', authMiddleware, this.updateClaim.bind(this));
 
     // Ruta para obtener un reclamo específico por su ID
-    //this.router.get('/claims/:claimId', authMiddleware, this.getClaimById);
+    this.router.get('/claims/:claimId', authMiddleware, this.getClaimById);
   }
 
   // Obtener todos los reclamos
@@ -53,15 +53,15 @@ class ClaimsRoute {
   }
 
   // Obtener un reclamo específico por su ID
-  /*private async getClaimById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  private async getClaimById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { claimId } = req.params;
-      const claim = await claimService.getClaimById(claimId);
+      const claim = await claimService.getClaimById(claimId, req.user);
       res.status(200).json(claim);
     } catch (error) {
       next(error);
     }
-  }*/
+  }
 }
 
 export default new ClaimsRoute().router;

@@ -3,10 +3,7 @@ import { ClaimStateEnum } from '@dtos/enum/claimState.enum';
 import claimTypeRepository from '@repositories/claimType.repository';
 
 class ClaimTypeService {
-  public async getClaimTypes(user: any) {
-    if (!user.permissions.includes("admin")) {
-      throw new CustomError('User is not admin', 401);
-    }
+  public async getClaimTypes() {    
     return claimTypeRepository.getClaimTypesDownDateNull();
   } 
 
@@ -31,7 +28,11 @@ class ClaimTypeService {
     return claimTypeRepository.getById(claimTypeId);
   }
 
-  public async deleteClaimType (claimTypeId: string) {
+  public async deleteClaimType (claimTypeId: string, user: any) {
+    if (!user.permissions.includes("admin")) {
+      throw new CustomError(`User with name ${user.name} is not admin`, 401);
+    }
+
     if (!claimTypeId) {
       throw new CustomError('ClaimTypeId is required', 400);
     }

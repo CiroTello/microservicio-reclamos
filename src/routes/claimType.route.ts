@@ -26,7 +26,7 @@ class ClaimTypesRoute {
   // Obtener todos los tipo reclamos
   private getClaimTypes(req: Request, res: Response, next: NextFunction) {
     claimTypeService
-      .getClaimTypes(req.user)
+      .getClaimTypes()
       .then((claimTypes) => res.json(claimTypes))
       .catch((err) => next(err));
   }
@@ -53,7 +53,7 @@ class ClaimTypesRoute {
   private deleteClaimType(req: Request, res: Response, next: NextFunction) {
     const { claimId } = req.params;
     claimTypeService
-    .deleteClaimType(claimId)
+    .deleteClaimType(claimId, req.user)
     .then((response) => res.json(response))
     .catch((err) => next(err));
   }

@@ -42,6 +42,10 @@ class ClaimService {
       throw new CustomError('Order not found', 404);
     }
 
+    if (claim.claimState != "CREATED") {
+      throw new CustomError('ClaimState must be CREATED', 400);
+    }
+
     claim.userId = userId;
 
     const claimCreated = await claimRepository.create(claim);
@@ -97,6 +101,20 @@ class ClaimService {
     }
 
     throw new CustomError('Invalid states for any User Case', 400);
+  }
+
+  public async getClaimById(claimId: string, user:any) {
+    if (!claimId) {
+      throw new CustomError('claimId is required', 400);
+    }
+
+    const claim = await claimRepository.getById(claimId);
+
+    if (claim?.userId != user.id && !user.permissions.includes("admin")) {
+      throw new CustomError('User not authorized', 401);
+    }
+
+    return claim;
   }
 }
 

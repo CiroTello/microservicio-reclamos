@@ -8,8 +8,8 @@ class ClaimRepository {
   async getClaims() {
     return ClaimModel.find();
   }
-  async getById(claimId: string) {
-    return ClaimModel.findById(claimId);
+  async getById(claimId: string): Promise<ClaimDocument | null> {
+    return ClaimModel.findById(claimId).exec();
   }
   async create(payload: Claim) {
     return ClaimModel.create(payload);
@@ -20,7 +20,7 @@ class ClaimRepository {
   async getByName(name: string) {
     return ClaimModel.findOne({ name });
   }
-  async getClaimsByUser(userId: string) {
+  async getClaimsByUser(userId: string)  {
     return ClaimModel.find({ userId });
   }
 }
