@@ -8,7 +8,7 @@ export interface Claim {
   description: string;
   startDate: Date;
   endDate: Date;
-  userId: number;
+  userId: string;
   claimState: ClaimState;
   claimTypeId: string;
   resolution: boolean;

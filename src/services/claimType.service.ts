@@ -3,8 +3,11 @@ import { ClaimStateEnum } from '@dtos/enum/claimState.enum';
 import claimTypeRepository from '@repositories/claimType.repository';
 
 class ClaimTypeService {
-  public async getClaimTypes() {
-    return claimTypeRepository.getClaimTypes();
+  public async getClaimTypes(user: any) {
+    if (!user.permissions.includes("admin")) {
+      throw new CustomError('User is not admin', 401);
+    }
+    return claimTypeRepository.getClaimTypesDownDateNull();
   } 
 
   public async createClaimType(claimType: any) {

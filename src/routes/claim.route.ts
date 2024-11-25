@@ -36,7 +36,7 @@ class ClaimsRoute {
       const claimData = req.body;
       const token = req.headers.authorization;
       claimService
-      .createClaim(claimData, token)
+      .createClaim(claimData, token, req.user.id)
       .then((response) => res.json(response))
       .catch((err) => next(err));
   }

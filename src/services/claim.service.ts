@@ -9,15 +9,15 @@ import {Rabbit} from '@rabbit/rabbit.server';
 
 class ClaimService {
   // Obtener todos los reclamos
-  public async getClaims(userId: any) {
-    if (userId.permissions.includes("admin")) {
+  public async getClaims(user: any) {
+    if (user.permissions.includes("admin")) {
       return claimRepository.getClaims();
     }
-    return claimRepository.getClaimsByUser(userId);
+    return claimRepository.getClaimsByUser(user.id);
   }
 
   // Crear un nuevo reclamo
-  public async createClaim(claim: Claim, token: any) {
+  public async createClaim(claim: Claim, token: any, userId: any) {
     if (!claim) {
       throw new CustomError('Claim is required', 400);
     }
@@ -41,6 +41,8 @@ class ClaimService {
     if(!rpta == false){ // Hardcodeado para que no falle al no encontrar la orden
       throw new CustomError('Order not found', 404);
     }
+
+    claim.userId = userId;
 
     const claimCreated = await claimRepository.create(claim);
     return claimCreated

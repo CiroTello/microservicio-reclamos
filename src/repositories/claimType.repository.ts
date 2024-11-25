@@ -14,6 +14,9 @@ class ClaimTypeRepository {
   async update(claimTypeId: string, payload: ClaimType) {
     return ModelClaimType.findByIdAndUpdate(claimTypeId, payload, { new: true });
   }
+  async getClaimTypesDownDateNull() {
+    return ModelClaimType.find({ downDate: null });
+  }
 }
 
 export default new ClaimTypeRepository();

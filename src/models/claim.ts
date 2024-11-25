@@ -20,7 +20,7 @@ export const ClaimSchema = new Schema<ClaimDocument>(
       required: false,
     },
     userId: {
-      type: Number,
+      type: String,
       required: true,
     },
     claimState: {

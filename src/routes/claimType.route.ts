@@ -17,7 +17,7 @@ class ClaimTypesRoute {
     this.router.post('/claim-types', authMiddleware, this.createClaimType);
 
     // Ruta para eliminar un tipo reclamo específico
-    this.router.delete('/claims/:claimId', authMiddleware, this.deleteClaimType);
+    this.router.delete('/claim-types/:claimId', authMiddleware, this.deleteClaimType);
 
     // Ruta para obtener un tipo reclamo específico por su ID
     this.router.get('/claim-types/:claimTypeId', authMiddleware, this.getClaimTypeById);
@@ -26,7 +26,7 @@ class ClaimTypesRoute {
   // Obtener todos los tipo reclamos
   private getClaimTypes(req: Request, res: Response, next: NextFunction) {
     claimTypeService
-      .getClaimTypes()
+      .getClaimTypes(req.user)
       .then((claimTypes) => res.json(claimTypes))
       .catch((err) => next(err));
   }

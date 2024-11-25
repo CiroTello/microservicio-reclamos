@@ -20,7 +20,7 @@ class ClaimRepository {
   async getByName(name: string) {
     return ClaimModel.findOne({ name });
   }
-  async getClaimsByUser(userId: number) {
+  async getClaimsByUser(userId: string) {
     return ClaimModel.find({ userId });
   }
 }
