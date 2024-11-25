@@ -7,11 +7,11 @@ services:
       - "3023:3000"
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://mongo:27017/pricing_db
+      - MONGODB_URI=mongodb://mongo:27017/claim-db
       - SECURITY_URL=http://localhost:3000
       - CURRENT_USER=/v1/users/current
       - RABBIT_URL=amqp://@localhost:5672
-      - QUEUE_STATS=price_notification_queue
+      - QUEUE_ORDERS_REQUEST=order_cancel_queue
     depends_on:
       - mongo
     networks:

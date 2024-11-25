@@ -1,164 +1,297 @@
-# Pricing-Api
+<!-- cSpell:language es -->
 
-## Descripción
-
-El microservicio de **Pricing** gestiona los precios de un catálogo, genera políticas de descuentos, maneja precios especiales, cupones y descuentos, y permite consultar precios para el proceso de compras. También notifica cambios de precios de forma asíncrona a otros servicios, como **Stats**.
+# ecommerce
 
 ## Casos de Uso
 
-#### 1. **Mantenimiento de Cupones**
-- **Actor:** Usuario.
-- **Descripción:** Permite a los administradores crear, actualizar y consultar cupones en el sistema.
-  - **Validaciones:**
-    1. **Creación de cupones:**
-       - Verificación de la existencia de un cupón con el mismo código. Si ya existe, se lanza un error con el mensaje "Coupon already exists with this code.".
-       - Validación de los campos `discount_type` y `discount_value` para asegurar que el tipo de descuento y el valor del descuento sean correctos.
-    2. **Actualización de cupones:**
-       - Verificación de que el cupón a actualizar exista en el sistema. Si no se encuentra, se lanza un error con el mensaje "Coupon not found".
-    3. **Consulta de cupones:**
-       - Recupera todos los cupones existentes sin validaciones adicionales.
+Es un ecommerce, o carrito de compras online.
 
-#### 2. **Aplicación de Cupones en la Compra**
-- **Actor:** Usuario.
-- **Descripción:** Permite a los clientes aplicar un cupón a una compra y calcular el precio total con el descuento aplicado.
-  - **Validaciones:**
-    1. **Verificación de validez del cupón:**
-       - El sistema valida que el cupón esté activo y dentro del rango de fechas permitido. Si no es válido, se lanza un error con el mensaje "Invalid or inactive coupon or outside the date range".
-    2. **Verificación de productos aplicables:**
-       - Se verifica que los productos seleccionados sean válidos para el cupón. Si uno o más productos no son aplicables, se lanza un error con el mensaje "Coupon is not valid for one or more selected products".
-    3. **Verificación de monto mínimo de compra:**
-       - Se valida que el total de la compra con descuento sea igual o superior al monto mínimo especificado en el cupón. Si no lo es, se lanza un error con el mensaje "Total purchase amount is below the minimum required".
-    4. **Verificación de límite de uso del cupón:**
-       - Se verifica si el cupón ha alcanzado su límite de usos. Si el límite ha sido alcanzado, se lanza un error con el mensaje "Coupon usage limit exceeded".
-    5. **Cálculo del descuento:**
-       - Según el tipo de descuento (`PERCENTAGE` o `FIXED`), se calcula el descuento aplicable y se devuelve el total con el descuento.
+**El usuario** :
 
-#### 3. **Mantenimiento de Descuentos**
-- **Actor:** Usuario.
-- **Descripción:** Permite a los administradores crear, actualizar y consultar descuentos que se aplican a productos o categorías específicas.
-  - **Validaciones:**
-    1. **Creación de descuentos:**
-       - El sistema permite la creación de descuentos sin validaciones adicionales específicas en este proceso.
-    2. **Actualización de descuentos:**
-       - Verificación de la existencia del descuento a actualizar. Si no se encuentra, se lanza un error con el mensaje "Discount not found".
-    3. **Aplicación de descuento:**
-       - Según el tipo de descuento (`PERCENTAGE` o `FIXED`), se calcula el descuento aplicable al precio. Si el descuento es un porcentaje, se aplica un porcentaje del precio; si es fijo, se resta una cantidad fija.
+- se registra.
+- se loguea en el sistema
+- se deslogua del sistema
+- navega por un catalogo de artículos.
+- agrega artículos al cart
+- revisa el cart
+- puede agregar mas artículos o quitar artículos del cart.
+- hace checkout del cart y genera una orden de compra
+- define la forma de pago
+- visualiza el estado de la orden.
 
-#### 4. **Aplicación de Descuentos a Productos**
-- **Actor:** Usuario.
-- **Descripción:** Permite aplicar descuentos a productos cuando se consultan sus precios. El precio final incluye descuentos activados para ese artículo.
-  - **Validaciones:**
-    1. **Verificación de descuentos activos:**
-       - Se consulta si hay descuentos activos para el artículo. Si no se encuentran descuentos, el precio se mantiene sin cambios.
-    2. **Cálculo de precio con descuento:**
-       - Los descuentos se aplican acumulativamente. El precio final con descuento no puede ser negativo, por lo que se asegura que el precio nunca baje de 0.
-    3. **Devolver precio con descuentos:**
-       - El precio final con descuento y la lista de descuentos aplicados son devueltos al cliente.
+El resto son casos de estudio
 
-#### 5. **Mantenimiento de Precios de Productos**
-- **Actor:** Usuario.
-- **Descripción:** Permite la creación y actualización de precios para productos en el catálogo. También se valida la fecha de vigencia del precio.
-  - **Validaciones:**
-    1. **Fecha de validez del precio:**
-       - Se valida que el precio esté dentro del rango de fechas permitido (utilizando `start_date` y `end_date`). Si el precio no está dentro del rango, se lanza un error con el mensaje "The current date is not within the allowed range".
-    2. **Verificación de precios existentes:**
-       - Si ya existe un precio para el artículo, se marca el precio anterior como expirado (actualizando su `end_date`).
-    3. **Verificación de precio válido:**
-       - Se valida que el valor del precio no sea nulo. Si no se especifica un precio, se lanza un error con el mensaje "Price is required".
-    4. **Notificación de cambios en el precio:**
-       - Cuando un nuevo precio es creado, se envía una notificación a través de RabbitMQ para actualizar otros sistemas relacionados.
+Como **usuario administrador**:
 
-#### 6. **Consulta de Precios de Productos**
-- **Actor:** Cliente.
-- **Descripción:** Permite a los clientes consultar el precio de un artículo y obtener el precio con descuentos aplicados.
-  - **Validaciones:**
-    1. **Verificación de existencia del producto:**
-       - Si no se encuentra el producto, se lanza un error con el mensaje "Product not found".
-    2. **Aplicación de descuentos:**
-       - Se consulta si hay descuentos activos para el artículo y se aplica el descuento correspondiente para calcular el precio final con descuento.
-    3. **Devolución de precios:**
-       - El precio con descuento y los descuentos aplicados son devueltos al cliente.
+- crea nuevos artículos
+- elimina artículos
+- define stock y precio actual
+- administra los permisos de usuario
+- invalida otros usuarios del sistema
 
-#### 7. **Notificación de Cambios de Precios**
-- **Actor:** Sistema de estadísticas o sistemas externos.
-- **Descripción:** Notificar a otros sistemas sobre los cambios de precios para su análisis y uso en reportes.
-  - **Validaciones:**
-    1. **Notificación de actualización de precios:**
-       - Cada vez que se crea o actualiza un precio, el sistema debe enviar un mensaje asíncrono (usando RabbitMQ) para informar a otros sistemas sobre el cambio de precio.
+## Arquitectura
 
-## Modelo de Datos
+Por motivos de simplicidad se ha reducido la cantidad de microservicios al mínimo, para dictar el curso. A su vez se han reducido al mínimo los frameworks y se ha intentado codificar los microservicios de una forma sencilla y legible.
 
-1. **Discount**
-   - `id`: string - Identificador único del descuento
-   - `name`: string - Nombre del descuento
-   - `type`: string - Tipo de descuento (`porcentaje`, `fijo`, etc.)
-   - `value`: number - Valor numérico del descuento
-   - `start_date`: date - Fecha de inicio de validez del descuento
-   - `end_date`: date - Fecha de fin de validez del descuento
-   - `article_ids`: array of strings - Lista de IDs de productos a los que se aplica el descuento
+Por lo tanto los microservicios necesitan un trabajo mas refinado de framework para poder ponerse en producción.
 
-2. **Price**
-   - `id`: string - Identificador único del precio
-   - `article_id`: string - ID del producto asociado a este precio
-   - `price`: number - Precio del producto en el período especificado
-   - `start_date`: date - Fecha de inicio de este precio
-   - `end_date`: date - Fecha de fin de este precio
+Se compone de los siguientes microservicios :
 
-3. **CouponUsage**
-   - `id`: string - Identificador único del uso del cupón
-   - `code`: string - Código del cupón utilizado
-   - `createdAt`: string - Fecha y Hora de uso del cupón.
+**Auth**
 
-4. **Coupon**
-   - `id`: string - Identificador único del cupón
-   - `code`: string - Código del cupón que se aplica para obtener el descuento
-   - `discount_type`: string - Tipo de descuento (`porcentaje`, `fijo`, etc.)
-   - `discount_value`: number - Valor del descuento (opcional, para tipos de descuento con valor específico)
-   - `applicable_products`: array of strings - IDs de los productos a los que aplica el cupón (opcional)
-   - `minimum_purchase`: number - Monto mínimo de compra para poder usar el cupón (opcional)
-   - `uses_limit`: number - Número máximo de veces que se puede usar el cupón
-   - `start_date`: date - Fecha de inicio de validez del cupón
-   - `end_date`: date - Fecha de fin de validez del cupón
+- Controla la seguridad del sistema.
+- Los usuarios se registran utilizando REST signup.
+- Los usuarios registrados adquieren el permiso "user".
+- Un usuario con permiso "admin" puede otorgar nuevos permisos a los demás usuarios.
+- Inicialmente nadie es admin, por lo tanto hay que recurrir a MongoDB Compass para asignarle el permiso a alguien.
+- Los usuarios se loguean utilizando REST.
+- Utiliza JWT, tanto el signin como signup devuelven el token para utilizar el sistema.
+- JWT esta compuesto por
+- El token debe pasarse siempre a todos los microservicios a través del header "Authorization": "bearer **token**"
+- Los tokens nunca caducan, los usuarios puede utilizar el token todo el tiempo que quieran.
+- Los token se invalidan en el signout. Desde el servidor se podría invalidar los tokens a demanda.
+- Los demás microservicios utilizan REST /current para obtener los datos del usuario logueado, utilizando el token pasado en el header. (queda en estudio realizar un protocolo binario para este caso)
+- La autorización anterior es una consulta costosa, para evitar consultas repetitivas los microservicios deben almacenar los datos del token y usuario en un cache local.
+- Cuando se invalida un token, auth envía un broadcast con rabbit a todos los microservicios para que se invaliden los caches locales para ese token.
 
+**Image**
 
-### Explicación de Cupones
-- **Cupón por Compra Mínima:** Configurar minimum_purchase para aplicar el cupón solo en compras superiores a cierto monto.
-- **Aplicación en Productos :** Usar applicable_products para limitar el cupón a ciertos productos.
-- **Límite de Usos:** Con uses_limit, el cupón solo se podrá utilizar un número determinado de veces (útil para promociones limitadas).
-- **Descuento Variable:** Personalizar discount_type y discount_value permite aplicar descuentos específicos sin depender de un descuento fijo.
+- Image almacena imágenes en una base de datos redis.
+- Es un microservicio que se realiza por cuestiones técnicas
+- Las imágenes deben subirse en formato base 64 "data:image/jpeg;base64,/9j/...".
+- Se pueden subir jpeg y png.
+- Al subir una imagen se obtiene el id, que luego sirve para recuperarla.
+- Se puede descargar en formato base64 o bien en jpeg
+- Se pueden descargar imágenes con tamaños mas reducidos para mejorar la experiencia del usuario
+- Los tamaños reducidos de imágenes se almacenan en redis para mejorar el acceso
+- Se necesita estar logueado como 'user' para subir imágenes.
+- No hace falta estar logueado para descargarlas.
+- Las imágenes nunca se borran de la db, solo se suben y se leen.
+- Utiliza rabbit para leer broadcasts de logout.
 
-## Documentación de la API
+**Catalog**
 
-Para ver la documentacion de la API, consulta el archivo [README-API.md](./README-API.md).
+- El catalogo es el encargado de mantener un listado de artículos.
+- Ademas de el listado de artículos mantiene el precio y el stock, dos cosas que no deben ser responsabilidad de este microservicio, pero simplifican los ejemplos en la cátedra.
+- Los artículos se crean a través de servicios rest.
+- Los artículos tienen asociada un image id del microservicio Image.
+- Para cargar artículos se necesita ser 'admin' del sistema.
+- Para consultar artículos no se necesita ser usuario.
+- Los artículos se consultan a través de servicios Rest.
+- El catalogo tiene la capacidad de validar artículos en forma asíncrona a través de rabbit.
+- El catalogo puede validar una existencia simple o bien validar mas datos de artículos, como precio y stock.
+- El catalogo se une a la cola de rabbit "topic" para "order_placed" de modo que cuando se hace un place de una orden automáticamente procede a validar los artículos e informar a orders que el los artículos son validos o no.
+- Ademas, utiliza rabbit para leer broadcasts de logout.
 
-## Interfaz RabbitMQ para Notificaciones de Precios
+**Cart**
 
-Este servicio se suscribe a un canal de RabbitMQ para notificar de forma asíncrona los cambios en los precios, como nuevas asignaciones o actualizaciones de precios, a servicios externos como **Stats**.
+- Es el carrito del sistema
+- Solo hay un carrito vigente en todo momento para un usuario logueado.
+- Solo usuarios logueados pueden usarlo.
+- Al carrito se le adjuntan article id y cantidad.
+- El carrito se usa a través de la interfaz rest.
+- La UI debe encargarse de traer los detalles de artículos desde catalog.
+- El carrito valida los artículos que se van agregando en forma asíncrona contra catalog, utilizando rabbit. La validación se debe hacer periódicamente para actualizar cambios de catalog.
+- Ademas puede ejecutarse una validación completa a demanda, que nos indica con warnings si un articulo no tiene suficiente stock. Una operación cara, pero recomendada en caso de que se este por hacer checkout.
+- El checkout del carrito cierra el carrito y abre uno nuevo para el usuario.
+- El proceso del checkout envía un mensaje asíncrono "place_order" utilizando rabbit a "order" service indicando que se cerro el carrito y se debe proceder a generar la orden.
+- Orders, una vez creada la orden enviar un "topic" "order_placed", cart lee dicho mensaje y actualiza el carrito con el order Id correspondiente.
+- Queda pendiente que se reenvíen los "place_order" en caso que el "order_placed" no se haya recibido.
+- Ademas, utiliza rabbit para leer broadcasts de logout.
 
-- **Cola RabbitMQ**: `price_notification_queue`
+**Orders**
 
-#### Mensaje de Notificación
-```json
-{
-  "_id": "67366854ec21ade4efab8202",
-  "article_id": "2",
-  "price": 9890,
-  "start_date": "2024-11-10T21:07:49.125Z",
-  "end_date": "2024-11-16T21:07:49.125Z",
-  "createdAt": "2024-11-14T21:15:00.294Z",
-  "updatedAt": "2024-11-14T21:15:00.294Z"
-}
-```
+- Es el encargado de procesar la orden.
+- Se maneja con CQRS. Esto quiere decir que se guardan solo eventos, no existe una entidad que sea el estado actual de la orden. Dicho estado se recupera desde los eventos.
+- Desde el cart se recibe un "place_order", si todo esta bien se guarda el evento y se envía un mensaje a rabbit con el topic "order_placed".
+- El mensaje topic "order_placed" lo escuchan Cart y Catalog. Catalog va a responder con el estado de los artículos "article-data".
+- Orders escucha "article-data" porque es una validación de artículos, que indica que los artículos de la orden son validos. Dicho evento se guarda.
+- Orders posee una interfaz rest que permite cargar la forma de pago con que se realizara la orden. El pago de la orden es algo que debería registrarse en Payments, pero para simplificar los ejemplos se decidió así.
 
-#### Descripción:
-- **`_id`**: Identificador único del documento en la base de datos, generado automáticamente.
-- **`article_id`**: Identificador del artículo o producto al que corresponde este registro.
-- **`price`**: El precio del artículo, expresado en la unidad monetaria correspondiente.
-- **`start_date`**: Fecha y hora en que el precio del artículo comienza a ser válido, en formato ISO 8601.
-- **`end_date`**: Fecha y hora en que el precio del artículo deja de ser válido, en formato ISO 8601.
-- **`createdAt`**: Fecha y hora en que el registro fue creado, en formato ISO 8601.
-- **`updatedAt`**: Fecha y hora en que el registro fue actualizado por última vez, en formato ISO 8601.
+Las proyecciones de Orders:
 
-#### Flujo del Mensaje:
-1. Cuando se crea o modifica un precio, se envía una notificación a la cola de RabbitMQ.
-2. Los servicios interesados, como **Stats**, consumen esta información para actualizar sus métricas o informes.
+En CQRS se manejan proyecciones para facilitar el acceso a datos
+
+**_Order_**
+
+- Se genera una orden, virtual, a partir de los eventos guardados.
+- A medida que se van generando eventos, se va completando la Orden con la información adecuada.
+- Existe un estado de la orden , que puede ser: PLACED, INVALID, VALIDATED, PAYMENT_DEFINED
+- PLACED es el estado cuando recién se recibe el evento place desde el cart.
+- VALIDATED es el estado que se adquiere cuando se validan los artículos desde el catalogo
+- INVAILID es un estado que se adquiere cuando el catalogo informa que los artículos son inválidos.
+- PAYMENT_DEFINED es un estado que se obtiene cuando el pago se definió.
+- Quedan muchos estados mas por resolver, e interacciones con otros microservicios, como caso de estudio.
+
+**_Status_**
+
+- Es un estado global de las ordenes.
+- Indica por cada orden cual es el estado actual en que se encuentra
+- No es preciso, no puede serlo ya que existe mucho paralelismo en estos sistemas. Queda como caso de estudio como podría mejorarse esta situación.
+- Debe actualizarse periódicamente este estado, a partir de la proyección de Orders. Deben haber procesos batch que se ejecuten con diferentes prioridades y diferentes frecuencia dependiendo de cada estado, que permita mantener esta proyección actualizada.
+- Los procesos batch de actualizaciones podrían encolarse en rabbit para distribuir la carga entre varios servidores.
+- A su vez cada estado debe desencadenar los controles necesarios del seguimiento de la orden. Dado que es factible que queden estados inconsistentes, los procesos batch deben encargarse de resolver estos inconvenientes de la cola de rabbit.
+
+**_Casos de estudio_**
+
+- Muchas proyecciones pueden realizarse a partir de los eventos. Muchas proyecciones podrían almacenarse en diferentes bases de datos.
+
+## Algunos diagramas de comunicación asíncrona con RabbitMQ
+
+### **"logout"** de Auth
+
+El logout es un broadcast enviado por Auth hacia todos los clientes conectados a rabbit.
+Cuando un token se desactiva el logout envía el token, para que los otros microservicios lo quiten de su cache.
+
+![https://g.gravizo.com/svg?
+ digraph G {
+   auth -> fanout [label=Logout];
+   fanout ->image ;
+   fanout -> cart;
+   fanout -> catalog;
+   fanout-> "...";
+ }](https://g.gravizo.com/svg?%20digraph%20G%20{%20auth%20-%3E%20fanout%20[label=Logout];%20fanout%20-%3Eimage%20;%20fanout%20-%3E%20cart;%20fanout%20-%3E%20catalog;%20fanout-%3E%20%22...%22;%20})
+
+### **"article_exist"** de Catalog
+
+Es un evento que escucha Catalog, por exchange "direct", el evento lo puede enviar cualquier microservicio y catalog responde con el articulo y un flag si es valido o no. La comunicación es asíncrona, por lo tanto el mensaje debe indicar a que exchange y queue se debe responder.
+
+Por el momento solo Cart envía este tipo de mensajes, cada vez que se agrega un artículo al cart se valida si existe o no.
+
+![https://g.gravizo.com/svg?
+ digraph G {
+   cart ->catalog  [label="article_exist"];
+   catalog -> cart;
+   }](https://g.gravizo.com/svg?%20digraph%20G%20{%20cart%20-%3Ecatalog%20%20[label=%22article_exist%22];%20catalog%20-%3E%20cart;%20})
+
+![https://g.gravizo.com/svg?
+ digraph G {
+   order ->catalog  [label="article_exist"];
+   catalog -> order;
+   }](https://g.gravizo.com/svg?%20digraph%20G%20{%20order%20-%3Ecatalog%20%20[label=%22article_exist%22];%20catalog%20-%3E%20order;%20})
+
+### **"place_order"** de Catalog
+
+Es un evento que escucha Catalog, por exchange "direct", el evento lo puede enviar cualquier microservicio y catalog responde con el articulo y un flag si es valido o no. La comunicación es asíncrona, por lo tanto el mensaje debe indicar a que exchange y queue se debe responder.
+
+Por el momento solo Cart envía este tipo de mensajes, cada vez que se agrega un artículo al cart se valida si existe o no.
+
+![https://g.gravizo.com/svg?
+ digraph G {
+   cart ->orders  [label="place_order"];
+   cart -> order;
+   }](https://g.gravizo.com/svg?%20digraph%20G%20{%20cart%20-%3Eorders%20%20[label=%22place_order%22];%20cart%20-%3E%20order;%20})
+
+### **"order_placed"** de Order
+
+Cuando una orden se recibe por Order Service, order envía "order-placed" al exchange = "sell_flow" y "topic" = "order_placed".
+En este caso vemos en acción el patron **_inversion de control_**, por lo tanto los microservicios que deban hacer algo con este evento deben reaccionar.
+Puntualmente Cart y Catalog son los que reaccionan a este evento.
+
+Este ejemplo es clave para comprender el espíritu de los eventos en una arquitectura de microservicios.
+
+![https://g.gravizo.com/svg?
+ digraph G {
+   auth -> fanout [label=order_placed];
+   fanout -> cart;
+   fanout -> catalog;
+ }](https://g.gravizo.com/svg?%20digraph%20G%20{%20auth%20-%3E%20fanout%20[label=order_placed];%20fanout%20-%3E%20cart;%20fanout%20-%3E%20catalog;%20})
+
+## Casos de Estudio
+
+Lo siguientes microservicios complementarían el sistema:
+
+### Stock
+
+- Maneja la cantidad actual de artículos en stock.
+- Maneja cantidad minima de stock para solicitar mas artículos.
+- Maneja movimientos de stock. La cantidad actual de artículos es calculada procesando los movimientos de stock.
+- Order y Stock Reposition generan movimientos sobre artículos
+- Notifica las altas de stock (async) para Orders, Catalog, Stats
+- Candidato ideal para CQRS
+
+### Pricing
+
+- Mantiene precios del catalogo
+- Genera políticas de descuentos
+- Maneja precios especiales, cupones y descuentos
+- Permite consultar precios para el proceso de compras
+- Notifica los nuevos precios (async) para Stats
+
+### Delivery
+
+- Realiza el envío de los pedido
+- Mantiene un tracking del pedido
+- Notifica cambios estados (async) para Orders, Stats
+- Permite cancelar una order si no se pudo enviar
+- Candidato ideal para CQRS
+
+### Stats
+
+- Mantiene estadísticas de Catalogo, Delivery, Pricing, etc
+- Genera reportes estadísticos y mantiene una minería de información optimizada para consultas.
+- Duplica mucha información de otros microservicios optimizando búsquedas
+- Puede leer la cola rabbit para genera información.
+
+### Profile
+
+- Permite a los usuarios mantener sus datos personales, gustos, imagen de perfil, etc.
+
+### Payment
+
+- Procesa los pagos de los usuarios de las compras
+- Notifica el estado del pago (async) para Orders, Stats
+- Puede cancelar una order si no se realiza el pago
+- Mantiene las formas de pago habilitadas por usuario
+
+### Reclamos Sobre Ordenes
+
+- El usuario reclama algo de la orden, permitiendo cancelarla si no se resuelve el reclamo correctamente.
+
+### Wallet
+
+- Es una billetera virtual en el caso que se hayan cobrado ordenes que no se pudieron guardar se generaría un crédito en wallet, que podría usarse como dinero.
+- Event source
+
+### Auth2
+
+- Auth realiza autenticación de usuario, pero no autorización, este modulo permite definir los permisos de los usuarios a los diferentes módulos.
+- Cada modulo define permisos, y con una interfaz unificada expone esos listados de permisos, Auth lee esos permisos y permite administrarles los permisos a los usuarios.
+- Auth maneja un listado de permisos por usuario para diferentes módulos, que los notifica en un servicio interno para que los otros microservicios puedan consultarlo y manejar seguridad.
+
+### User Feed
+
+- Es un modulo que permite a los usuarios comentar sobre los artículos que compraron
+- No tiene mucha interacción, un listado de mensajes de usuarios con comentarios de artículos del catalogo.
+
+### Recommendations
+
+- Basado en Orders genera recomendaciones de artículos que los compradores podrían estar interesados.
+- Notifica las recomendaciones (async) para Mail Notifications
+
+### Questions
+
+- Un modulo que permite realizar consultas sobre artículos de Catalog
+- Notifica (async) para Stats
+
+### Early Buy
+
+- Un modulo que permite anotarse para productos que no tiene stock.
+- Una vez que el producto adquiere stock notifica al usuario de que hay stock.
+- Notifica cuando se debe notificar (async)
+
+### Mail Notifications
+
+- Realiza notificaciones por email, solo manda mails.
+- Lee ciertos canales como Early Buy y Stock Reposition para enviar mails.
+
+### Stock Reposition
+
+- Realiza un análisis del stock y notifica cuando se debe realizar reposición de artículos.
+- Reponer artículos para un portal grande es un tema complejo.
+- Se notifica cuando hay que reponer (async).
+- Automáticamente genera ordenes de compra.
+
+### Audit
+
+- Permite realizar auditorías

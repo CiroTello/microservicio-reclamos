@@ -1,4 +1,4 @@
-# Pricing-Api
+# Reclamo-MS
 
 Bienvenido al proyecto **Reclamo-MS**.
 
@@ -10,7 +10,7 @@ Bienvenido al proyecto **Reclamo-MS**.
 
 ## Arquitectura
 
-Para obtener más información sobre la arquitectura del proyecto, consulta el archivo [ARCHITECTURE.md](./ARCHITECTURE.md).
+Para obtener más información sobre la arquitectura del proyecto ecommerce completo, consulta el archivo [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Documentación API
 
