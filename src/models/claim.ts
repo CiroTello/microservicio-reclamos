@@ -40,6 +40,10 @@ export const ClaimSchema = new Schema<ClaimDocument>(
       type: String,
       required: true,
     },
+    comentarioResolucion: {
+      type: String,
+      required: false,
+    },
   },
   {
     collection: 'claims',

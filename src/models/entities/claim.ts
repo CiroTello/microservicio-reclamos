@@ -13,4 +13,5 @@ export interface Claim {
   claimTypeId: string;
   resolution: boolean;
   orderId: string;
+  comentarioResolucion: string;
 }

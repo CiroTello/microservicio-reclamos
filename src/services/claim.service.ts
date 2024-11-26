@@ -53,6 +53,7 @@ class ClaimService {
     }
 
     claim.userId = userId;
+    claim.comentarioResolucion = "";
     return await claimRepository.create(claim);
   }
 
