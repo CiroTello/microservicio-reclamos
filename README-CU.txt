@@ -159,6 +159,7 @@ Entidades
 		* usuarioId
 		* relacion con tipoReclamo
 		* resolución (boolean)
+		* comentarioResolucion
 	- ClaimType:
 		* id
 		* nombre
