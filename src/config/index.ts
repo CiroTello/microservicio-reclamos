@@ -18,4 +18,5 @@ export default {
   CURRENT_USER: process.env.CURRENT_USER || '',
   RABBIT_URL: process.env.RABBIT_URL || '',
   QUEUE_ORDERS_REQUEST: process.env.QUEUE_ORDERS_REQUEST || '',
+  MS_ORDER_URL: process.env.MS_ORDER_URL || '',
 };

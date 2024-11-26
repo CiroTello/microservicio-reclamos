@@ -13,6 +13,7 @@ class ClaimService {
     if (user.permissions.includes("admin")) {
       return claimRepository.getClaims();
     }
+    
     return claimRepository.getClaimsByUser(user.id);
   }
 
@@ -41,15 +42,12 @@ class ClaimService {
     if(!rpta == false){ // Hardcodeado para que no falle al no encontrar la orden
       throw new CustomError('Order not found', 404);
     }
-
     if (claim.claimState != "CREATED") {
       throw new CustomError('ClaimState must be CREATED', 400);
     }
 
     claim.userId = userId;
-
-    const claimCreated = await claimRepository.create(claim);
-    return claimCreated
+    return await claimRepository.create(claim);
   }
 
   // Actualizar un reclamo específico
@@ -60,7 +58,6 @@ class ClaimService {
     if (!claimData.claimState) {
       throw new CustomError('ClaimState is required', 400);
     }
-
     const claim = await claimRepository.getById(claimId);
     if (!claim) {
       throw new CustomError('Claim not found', 404);
@@ -79,6 +76,7 @@ class ClaimService {
         console.log("Enviar mensaje a RabbitMQ");
         Rabbit.getInstance().sendMessage(`cancelOrder: ${claim.orderId}`);
         console.log("Mensaje enviado a RabbitMQ");
+
         claim.claimState = claimData.claimState;
         claim.resolution = true
         return claimRepository.update(claimId, claim);
@@ -103,6 +101,7 @@ class ClaimService {
     throw new CustomError('Invalid states for any User Case', 400);
   }
 
+  // Obtener un reclamo específico por su ID
   public async getClaimById(claimId: string, user:any) {
     if (!claimId) {
       throw new CustomError('claimId is required', 400);

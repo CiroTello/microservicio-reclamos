@@ -1,4 +1,5 @@
 import axios from 'axios';
+import config from '../config/index';
 
 // Configuración del interceptor
 /*axios.interceptors.request.use((config) => {
@@ -8,7 +9,7 @@ import axios from 'axios';
   });*/
 
 class OrderService {
-  private static orderURL: string = process.env.MS_ORDER_URL || "";
+  private static orderURL: string = config.MS_ORDER_URL || "";
 
   // Método para verificar si una orden existe
   public async checkOrderExists (orderId: string, token: string): Promise<boolean> {
