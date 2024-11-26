@@ -9,11 +9,17 @@ import {Rabbit} from '@rabbit/rabbit.server';
 
 class ClaimService {
   // Obtener todos los reclamos
-  public async getClaims(user: any) {
+  public async getClaims(user: any, claimState: any) {
     if (user.permissions.includes("admin")) {
+      if (claimState != null) {
+        return claimRepository.getClaimsByState(claimState);
+      }
       return claimRepository.getClaims();
     }
     
+    if (claimState != null) {
+      return claimRepository.getClaimsByStateAndByUser(claimState, user.id);
+    }
     return claimRepository.getClaimsByUser(user.id);
   }
 

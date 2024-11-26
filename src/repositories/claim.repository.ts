@@ -5,8 +5,8 @@ class ClaimRepository {
   async getClaimByUser(usuario: number): Promise<ClaimDocument | null> {
     return ClaimModel.findOne({ usuario }).exec(); // Tipado explícito
   }
-  async getClaims() {
-    return ClaimModel.find();
+  async getClaimsByState(claimState: string){
+    return ClaimModel.find({claimState});
   }
   async getById(claimId: string): Promise<ClaimDocument | null> {
     return ClaimModel.findById(claimId).exec();
@@ -22,6 +22,12 @@ class ClaimRepository {
   }
   async getClaimsByUser(userId: string)  {
     return ClaimModel.find({ userId });
+  }
+  async getClaims () {
+    return ClaimModel.find();
+  }
+  async getClaimsByStateAndByUser(claimState: string, userId: number): Promise<any[]> {
+    return ClaimModel.find({ claimState, userId });
   }
 }
 

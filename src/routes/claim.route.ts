@@ -25,8 +25,10 @@ class ClaimsRoute {
 
   // Obtener todos los reclamos
   private getClaims(req: Request, res: Response, next: NextFunction) {
+    console.log("Query params:", req.query);
+    const { claimState } = req.query;
     claimService
-    .getClaims(req.user)
+    .getClaims(req.user, claimState)
     .then((claims) => res.json(claims))
     .catch((err) => next(err));
   }

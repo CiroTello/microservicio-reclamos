@@ -36,6 +36,14 @@ paths:
       description: Devuelve todos los reclamos y sus estados.
       security:
         - bearerAuth: []
+      parameters:
+        - in: query
+          name: claimState
+          required: false # Cambia a true si quieres que sea obligatorio
+          schema:
+            type: string
+            enum: [CREATED, IN_PROGRESS, FINALIZED, CANCELED]
+          description: Filtra los reclamos por estado.
       responses:
         '200':
           description: Lista de reclamos obtenida.

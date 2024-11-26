@@ -5,7 +5,6 @@ import claimTypeRepository from '@repositories/claimType.repository';
 class ClaimTypeService {
   // Obtener todos los tipos de reclamos
   public async getClaimTypes() {    
-
     return claimTypeRepository.getClaimTypesDownDateNull();
   } 
 
